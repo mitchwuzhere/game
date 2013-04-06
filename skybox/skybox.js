@@ -14,60 +14,47 @@ goog.require('lime.animation.ScaleTo');
 goog.require('lime.animation.MoveTo');
 
 
+	var scoreMsg;
+
+skybox.score = function(name, done, failed) {
+	scoreMsg.setText(name + ": " + done + ", " + failed);
+}
+
 // entrypoint
 skybox.start = function(){
 
-	var director = new lime.Director(document.body,1024,768),
-	    scene = new lime.Scene(),
+	var skyboxModel = new skybox.Model(4);
 
-	    target = new lime.Layer().setPosition(512,384),
-        circle = new lime.Circle().setSize(150,150).setFill(255,150,0),
-        lbl = new lime.Label().setSize(160,50).setFontSize(30).setText('TOUCH ME!'),
-        title = new lime.Label().setSize(800,70).setFontSize(60).setText('Now move me around!')
-            .setOpacity(0).setPosition(512,80).setFontColor('#999').setFill(200,100,0,.1);
+	var director = new lime.Director(document.body,1024,768);
+	var scene = new lime.Scene();
+	var allSats = new lime.Layer().setPosition(200,200);
 
+	for ( i=0; i<skyboxModel.sats.length; i++ ) {
+		var satView = new lime.Circle().setSize(50,50).setFill(i*10,i*20,i*30);
+		skyboxModel.sats[i].view = satView;
+		allSats.appendChild(satView);
+	}
 
-    //add circle and label to target object
-    target.appendChild(circle);
-    target.appendChild(lbl);
+	scene.appendChild(allSats);
 
-    //add target and title to the scene
-    scene.appendChild(target);
-    scene.appendChild(title);
+	scoreMsg = new lime.Label("scoring").setPosition(400,400);
+	scene.appendChild(scoreMsg);
 
 	director.makeMobileWebAppCapable();
 
-    //add some interaction
-    goog.events.listen(target,['mousedown','touchstart'],function(e){
-
-        //animate
-        target.runAction(new lime.animation.Spawn(
-            new lime.animation.FadeTo(.5).setDuration(.2),
-            new lime.animation.ScaleTo(1.5).setDuration(.8)
-        ));
-
-        title.runAction(new lime.animation.FadeTo(1));
-
-        //let target follow the mouse/finger
-        e.startDrag();
-
-        //listen for end event
-        e.swallow(['mouseup','touchend'],function(){
-            target.runAction(new lime.animation.Spawn(
-                new lime.animation.FadeTo(1),
-                new lime.animation.ScaleTo(1),
-                new lime.animation.MoveTo(512,384)
-            ));
-
-            title.runAction(new lime.animation.FadeTo(0));
-        });
-
-
-    });
 
 	// set current scene active
 	director.replaceScene(scene);
 
+	skyboxModel.schedule();
+
+	//var sata = new skybox.Satellite("skysat-a", mysat);
+
+	
+
+	//alert(sata.longitude + ", " + sata.latitude);
+
+	//alert(lime.scheduleManager.getDisplayRate());
 }
 
 
